@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甜蜜美食转盘 - 今天吃什么？</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Nunito:wght@400;600;800&display=swap">
+    <style>
+        :root {
+            --primary-yellow: #F7D752;  /* 主色 - 柠檬糖果黄 */
+            --primary-blue: #6DBFEA;    /* 辅助色 - 薄荷糖果蓝 */
+            --accent-pink: #FF9AC8;     /* 点缀色 - 草莓糖果粉 */
+            --accent-green: #7ED957;    /* 点缀色 - 青苹果糖果绿 */
+            --dark-accent: #2D3047;     /* 深色点缀 - 糖果包装深蓝 */
+            --light-bg: #FFF9F5;        /* 背景色 - 奶油白 */
+            --card-bg: #FFFFFF;         /* 卡片背景 - 纯白 */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
+            background: linear-gradient(135deg, #FFF9F5 0%, #FFF0E5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* 糖果波点背景装饰 */
+        .candy-dot {
+            position: fixed;
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.3;
+            animation: floatDot 20s infinite linear;
+        }
+        
+        .dot-yellow {
+            background: #F7D752;
+            width: 120px;
+            height: 120px;
+            top: 10%;
+            left: 8%;
+            animation-delay: 0s;
+        }
+        
+        .dot-blue {
+            background: #6DBFEA;
+            width: 90px;
+            height: 90px;
+            bottom: 15%;
+            right: 10%;
+            animation-delay: -5s;
+        }
+        
+        .dot-pink {
+            background: #FF9AC8;
+            width: 70px;
+            height: 70px;
+            top: 30%;
+            right: 15%;
+            animation-delay: -10s;
+        }
+        
+        .dot-green {
+            background: #7ED957;
+            width: 60px;
+            height: 60px;
+            bottom: 25%;
+            left: 12%;
+            animation-delay: -7s;
+        }
+        
+        @keyframes floatDot {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.2;
+            }
+            33% { 
+                transform: translateY(-30px) rotate(120deg);
+                opacity: 0.4;
+            }
+            66% { 
+                transform: translateY(20px) rotate(240deg);
+                opacity: 0.3;
+            }
+        }
+        
+        /* 主容器 - 糖果卡片 */
+        .candy-card {
+            width: 100%;
+            max-width: 700px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #FFFDF8 100%);
+            border-radius: 40px;
+            box-shadow: 
+                0 25px 50px rgba(247, 215, 82, 0.15),
+                0 15px 30px rgba(109, 191, 234, 0.1),
+                inset 0 0 0 4px #FFFFFF,
+                inset 0 0 30px rgba(247, 215, 82, 0.05);
+            padding: 60px 50px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            animation: cardBounce 8s infinite ease-in-out;
+        }
+        
+        @keyframes cardBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.01); }
+        }
+        
+        /* 糖果边框装饰 */
+        .candy-border {
+            position: absolute;
+            border-radius: 40px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, 
+                transparent 49%, #F7D752 49.5%, #F7D752 50.5%, transparent 51%,
+                transparent 74%, #6DBFEA 74.5%, #6DBFEA 75.5%, transparent 76%,
+                transparent 24%, #FF9AC8 24.5%, #FF9AC8 25.5%, transparent 26%
+            );
+            background-size: 60px 60px;
+            opacity: 0.15;
+            z-index: -1;
+            animation: borderMove 30s infinite linear;
+        }
+        
+        @keyframes borderMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 60px; }
+        }
+        
+        /* 标题区域 - 中心对齐，大间距 */
+        .title-section {
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        .main-title {
+            font-family: 'Comic Neue', cursive;
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .title-yellow {
+            background: linear-gradient(135deg, #F7D752 0%, #FFC800 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 5px 15px rgba(247, 215, 82, 0.2);
+        }
+        
+        .title-blue {
+            background: linear-gradient(135deg, #6DBFEA 0%, #4A9ED9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 5px 15px rgba(109, 191, 234, 0.2);
+        }
+        
+        .title-icon {
+            font-size: 3.5rem;
+            margin: 0 10px;
+            vertical-align: middle;
+            animation: iconSpin 10s infinite linear;
+        }
+        
+        @keyframes iconSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            color: #2D3047;
+            font-weight: 600;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            background: rgba(247, 215, 82, 0.1);
+            padding: 12px 30px;
+            border-radius: 30px;
+            display: inline-block;
+            animation: subtitleFloat 4s infinite ease-in-out;
+        }
+        
+        @keyframes subtitleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* 美食显示区域 - 中心焦点 */
+        .food-wheel {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.95) 0%, 
+                rgba(255, 253, 248, 0.95) 100%);
+            border-radius: 35px;
+            padding: 70px 40px;
+            margin: 40px 0 60px;
+            position: relative;
+            box-shadow: 
+                inset 0 0 0 3px rgba(255, 255, 255, 0.8),
+                0 20px 40px rgba(247, 215, 82, 0.1),
+                0 10px 20px rgba(109, 191, 234, 0.05);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        /* 转盘装饰环 */
+        .wheel-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 35px;
+            top: 0;
+            left: 0;
+            background: conic-gradient(
+                from 0deg,
+                #F7D752 0deg,
+                #6DBFEA 90deg,
+                #FF9AC8 180deg,
+                #7ED957 270deg,
+                #F7D752 360deg
+            );
+            opacity: 0.1;
+            animation: ringRotate 20s infinite linear;
+        }
+        
+        @keyframes ringRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .food-name {
+            font-size: 4rem;
+            font-weight: 800;
+            margin: 0;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .food-name-text {
+            background: linear-gradient(135deg, 
+                #2D3047 0%, 
+                #2D3047 30%, 
+                #2D3047 70%, 
+                #2D3047 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 15px 25px;
+            border-radius: 25px;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: inline-block;
+            box-shadow: 0 8px 20px rgba(45, 48, 71, 0.1);
+            border: 3px solid rgba(247, 215, 82, 0.2);
+        }
+        
+        .rolling .food-name-text {
+            animation: candyColors 1.5s infinite alternate, bounce 0.6s infinite alternate;
+        }
+        
+        @keyframes candyColors {
+            0% { 
+                background: linear-gradient(135deg, #F7D752 0%, #FFC800 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            33% { 
+                background: linear-gradient(135deg, #6DBFEA 0%, #4A9ED9 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            66% { 
+                background: linear-gradient(135deg, #FF9AC8 0%, #FF7BB9 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            100% { 
+                background: linear-gradient(135deg, #7ED957 0%, #5BCB3D 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* 结果区域 - 中心显示 */
+        .result-section {
+            margin-top: 30px;
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .result-section.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        .result-bubble {
+            background: linear-gradient(135deg, #F7D752 0%, #FFC800 100%);
+            color: #2D3047;
+            font-size: 2rem;
+            font-weight: 700;
+            padding: 25px 45px;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 
+                0 15px 30px rgba(247, 215, 82, 0.3),
+                inset 0 0 20px rgba(255, 255, 255, 0.4);
+            position: relative;
+            animation: bubblePulse 2s infinite alternate;
+        }
+        
+        @keyframes bubblePulse {
+            0% { transform: scale(1); box-shadow: 0 15px 30px rgba(247, 215, 82, 0.3); }
+            100% { transform: scale(1.05); box-shadow: 0 20px 40px rgba(247, 215, 82, 0.4); }
+        }
+        
+        .selected-food {
+            color: #2D3047;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin: 0 5px;
+            display: inline-block;
+            animation: selectedPop 1.5s infinite alternate;
+        }
+        
+        @keyframes selectedPop {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+        
+        /* 按钮区域 - 中心对称布局 */
+        .button-section {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .candy-button {
+            padding: 25px 50px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Comic Neue', cursive;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            min-width: 220px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.15),
+                inset 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+        
+        .candy-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.5), 
+                transparent);
+            transition: all 0.8s ease;
+            z-index: -1;
+        }
+        
+        .candy-button:hover::before {
+            left: 100%;
+        }
+        
+        .btn-yellow {
+            background: linear-gradient(135deg, #F7D752 0%, #FFC800 100%);
+            color: #2D3047;
+        }
+        
+        .btn-yellow:hover:not(:disabled) {
+            transform: translateY(-8px) scale(1.08);
+            box-shadow: 
+                0 20px 40px rgba(247, 215, 82, 0.4),
+                0 0 30px rgba(255, 200, 0, 0.3);
+        }
+        
+        .btn-blue {
+            background: linear-gradient(135deg, #6DBFEA 0%, #4A9ED9 100%);
+            color: white;
+        }
+        
+        .btn-blue:hover:not(:disabled) {
+            transform: translateY(-8px) scale(1.08);
+            box-shadow: 
+                0 20px 40px rgba(109, 191, 234, 0.4),
+                0 0 30px rgba(74, 158, 217, 0.3);
+        }
+        
+        .candy-button:active:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .candy-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .btn-icon {
+            font-size: 2rem;
+            animation: candyFloat 2s infinite ease-in-out;
+        }
+        
+        @keyframes candyFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* 底部提示 - 简洁中心对齐 */
+        .hint-text {
+            text-align: center;
+            margin-top: 40px;
+            color: #2D3047;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            font-weight: 500;
+            letter-spacing: 1px;
+            animation: hintFade 6s infinite alternate;
+            padding: 15px 30px;
+            background: rgba(109, 191, 234, 0.08);
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        @keyframes hintFade {
+            0%, 60% { opacity: 0.6; }
+            100% { opacity: 0.9; }
+        }
+        
+        /* 飘动的糖果装饰 */
+        .floating-candy {
+            position: fixed;
+            font-size: 1.8rem;
+            opacity: 0.2;
+            z-index: -1;
+            animation: candyDrift 25s infinite linear;
+            pointer-events: none;
+        }
+        
+        @keyframes candyDrift {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .candy-card {
+                padding: 40px 30px;
+                border-radius: 30px;
+                max-width: 90%;
+            }
+            
+            .main-title {
+                font-size: 3.5rem;
+            }
+            
+            .title-icon {
+                font-size: 2.8rem;
+            }
+            
+            .food-wheel {
+                padding: 50px 30px;
+                min-height: 240px;
+                margin: 30px 0 40px;
+            }
+            
+            .food-name {
+                font-size: 3.2rem;
+            }
+            
+            .button-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            
+            .candy-button {
+                width: 100%;
+                max-width: 300px;
+                padding: 22px 40px;
+            }
+            
+            .result-bubble {
+                font-size: 1.8rem;
+                padding: 20px 35px;
+            }
+            
+            .dot-yellow, .dot-blue, .dot-pink, .dot-green {
+                transform: scale(0.7);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 2.8rem;
+            }
+            
+            .food-name {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.3rem;
+                padding: 10px 20px;
+            }
+            
+            .result-bubble {
+                font-size: 1.5rem;
+                padding: 18px 30px;
+            }
+            
+            .candy-button {
+                font-size: 1.4rem;
+                padding: 20px 35px;
+            }
+            
+            .hint-text {
+                font-size: 1rem;
+                padding: 12px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 糖果波点背景 -->
+    <div class="candy-dot dot-yellow"></div>
+    <div class="candy-dot dot-blue"></div>
+    <div class="candy-dot dot-pink"></div>
+    <div class="candy-dot dot-green"></div>
+    
+    <!-- 飘动糖果装饰 -->
+    <div id="candyDecorations"></div>
+    
+    <!-- 主糖果卡片 -->
+    <main class="candy-card">
+        <div class="candy-border"></div>
+        
+        <!-- 标题区域 -->
+        <section class="title-section">
+            <h1 class="main-title">
+                <span class="title-yellow">今天</span>
+                <span class="title-icon">🎲</span>
+                <span class="title-blue">吃什么</span>
+            </h1>
+            <p class="subtitle">甜蜜选择·美食大冒险</p>
+        </section>
+        
+        <!-- 美食转盘区域 -->
+        <section class="food-wheel">
+            <div class="wheel-ring"></div>
+            <div class="food-name" id="foodName">
+                <span class="food-name-text" id="foodNameText">草莓蛋糕</span>
+            </div>
+            <div class="result-section" id="resultSection">
+                <div class="result-bubble">
+                    甜蜜选择！今天吃 <span class="selected-food" id="selectedFood">草莓蛋糕</span> 🎉
+                </div>
+            </div>
+        </section>
+        
+        <!-- 操作按钮 -->
+        <section class="button-section">
+            <button class="candy-button btn-yellow" id="rollBtn">
+                <span class="btn-icon">🎪</span>
+                <span>开始转动</span>
+            </button>
+            <button class="candy-button btn-blue" id="stopBtn" disabled>
+                <span class="btn-icon">🎯</span>
+                <span>停止选择</span>
+            </button>
+        </section>
+        
+        <!-- 使用提示 -->
+        <p class="hint-text">点击按钮或按空格键开始/停止 | 每日都有甜蜜惊喜</p>
+    </main>
+
+    <script>
+        // 甜蜜美食列表 - 专注甜食和可爱食物
+        const sweetFoods = [
+            "草莓蛋糕", "巧克力圣代", "彩虹马卡龙", "芒果布丁", "奶油泡芙",
+            "水果塔", "冰淇淋球", "芝士蛋糕", "提拉米苏", "熔岩巧克力",
+            "甜甜圈", "糯米糍", "焦糖布丁", "水果沙拉", "华夫饼",
+            "松饼塔", "果冻杯", "奶酪棒", "棉花糖", "棒棒糖",
+            "曲奇饼干", "苹果派", "蓝莓松饼", "香草奶昔", "珍珠奶茶",
+            "草莓大福", "抹茶卷", "红豆面包", "蛋挞", "可丽饼"
+        ];
+        
+        // 获取DOM元素
+        const foodNameText = document.getElementById('foodNameText');
+        const selectedFoodElement = document.getElementById('selectedFood');
+        const resultSection = document.getElementById('resultSection');
+        const rollBtn = document.getElementById('rollBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const foodWheel = document.querySelector('.food-wheel');
+        const candyDecorations = document.getElementById('candyDecorations');
+        
+        // 控制变量
+        let isRolling = false;
+        let rollInterval;
+        let rollSpeed = 80;
+        let currentIndex = 0;
+        
+        // 创建飘动糖果装饰
+        function createCandyDecorations() {
+            const candies = ['🍬', '🍭', '🍫', '🍪', '🍩', '🧁', '🍰', '🎂', '🍦', '🍧'];
+            
+            for (let i = 0; i < 12; i++) {
+                const candy = document.createElement('div');
+                candy.className = 'floating-candy';
+                candy.textContent = candies[Math.floor(Math.random() * candies.length)];
+                candy.style.left = Math.random() * 100 + 'vw';
+                candy.style.animationDelay = Math.random() * 25 + 's';
+                candy.style.animationDuration = Math.random() * 15 + 20 + 's';
+                candy.style.fontSize = Math.random() * 20 + 20 + 'px';
+                candy.style.opacity = Math.random() * 0.15 + 0.1;
+                
+                candyDecorations.appendChild(candy);
+            }
+        }
+        
+        // 获取食物对应图标
+        function getFoodIcon(foodName) {
+            const iconMap = {
+                "蛋糕": "🎂", "巧克力": "🍫", "马卡龙": "🥐", "布丁": "🍮",
+                "泡芙": "🥯", "水果塔": "🥧", "冰淇淋": "🍦", "芝士": "🧀",
+                "甜甜圈": "🍩", "糯米": "🍙", "焦糖": "🍯", "沙拉": "🥗",
+                "华夫饼": "🧇", "松饼": "🥞", "果冻": "🍮", "奶酪": "🧀",
+                "棉花糖": "🍡", "棒棒糖": "🍭", "曲奇": "🍪", "苹果派": "🥧",
+                "松饼": "🥞", "奶昔": "🥤", "珍珠奶茶": "🧋", "大福": "🍡",
+                "抹茶": "🍵", "红豆": "🫘", "蛋挞": "🥧", "可丽饼": "🥞"
+            };
+            
+            for (const [key, icon] of Object.entries(iconMap)) {
+                if (foodName.includes(key)) {
+                    return icon;
+                }
+            }
+            
+            return "🍽️"; // 默认图标
+        }
+        
+        // 随机获取食物索引
+        function getRandomFoodIndex() {
+            return Math.floor(Math.random() * sweetFoods.length);
+        }
+        
+        // 开始滚动食物名称
+        function startRolling() {
+            if (isRolling) return;
+            
+            isRolling = true;
+            foodWheel.classList.add('rolling');
+            rollBtn.disabled = true;
+            stopBtn.disabled = false;
+            resultSection.classList.remove('show');
+            
+            // 初始快速滚动
+            rollSpeed = 70;
+            let speedStep = 0;
+            
+            rollInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % sweetFoods.length;
+                const food = sweetFoods[currentIndex];
+                foodNameText.textContent = food;
+                
+                // 逐渐减慢速度，模拟真实转盘
+                if (speedStep < 10) {
+                    clearInterval(rollInterval);
+                    speedStep++;
+                    rollSpeed += 15;
+                    rollInterval = setInterval(() => {
+                        currentIndex = (currentIndex + 1) % sweetFoods.length;
+                        const food = sweetFoods[currentIndex];
+                        foodNameText.textContent = food;
+                    }, rollSpeed);
+                }
+            }, rollSpeed);
+        }
+        
+        // 停止滚动
+        function stopRolling() {
+            if (!isRolling) return;
+            
+            clearInterval(rollInterval);
+            
+            // 模拟减速效果
+            let slowDownSteps = 0;
+            const slowDownInterval = setInterval(() => {
+                currentIndex = (currentIndex + 1) % sweetFoods.length;
+                const food = sweetFoods[currentIndex];
+                foodNameText.textContent = food;
+                
+                slowDownSteps++;
+                if (slowDownSteps > 8) {
+                    clearInterval(slowDownInterval);
+                    
+                    // 最终停止
+                    isRolling = false;
+                    foodWheel.classList.remove('rolling');
+                    rollBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    
+                    // 显示结果
+                    const finalFood = sweetFoods[currentIndex];
+                    selectedFoodElement.textContent = finalFood;
+                    
+                    setTimeout(() => {
+                        resultSection.classList.add('show');
+                    }, 400);
+                    
+                    // 添加庆祝效果
+                    addCandyCelebration(finalFood);
+                }
+            }, 100 + slowDownSteps * 25);
+        }
+        
+        // 添加糖果庆祝效果
+        function addCandyCelebration(foodName) {
+            const candyColors = ['#F7D752', '#6DBFEA', '#FF9AC8', '#7ED957'];
+            const candyIcons = ['🍬', '🍭', '🍫', '🍪', '🍩', '🧁', '🎂', '🍦'];
+            
+            // 糖果雨效果
+            for (let i = 0; i < 20; i++) {
+                const candy = document.createElement('div');
+                candy.textContent = candyIcons[Math.floor(Math.random() * candyIcons.length)];
+                candy.style.position = 'fixed';
+                candy.style.fontSize = Math.random() * 25 + 25 + 'px';
+                candy.style.color = candyColors[Math.floor(Math.random() * candyColors.length)];
+                candy.style.left = Math.random() * 100 + 'vw';
+                candy.style.top = '-50px';
+                candy.style.zIndex = '9999';
+                candy.style.pointerEvents = 'none';
+                candy.style.filter = 'drop-shadow(0 4px 6px rgba(0,0,0,0.2))';
+                
+                document.body.appendChild(candy);
+                
+                const animation = candy.animate([
+                    { 
+                        transform: 'translateY(0) rotate(0deg) scale(0.6)', 
+                        opacity: 0.9 
+                    },
+                    { 
+                        transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 720}deg) scale(1.2)`, 
+                        opacity: 0 
+                    }
+                ], {
+                    duration: Math.random() * 1200 + 1000,
+                    easing: 'cubic-bezier(0.215, 0.610, 0.355, 1)'
+                });
+                
+                animation.onfinish = () => {
+                    candy.remove();
+                };
+            }
+            
+            // 选中食物图标弹出
+            const foodIcon = getFoodIcon(foodName);
+            const bigIcon = document.createElement('div');
+            bigIcon.textContent = foodIcon;
+            bigIcon.style.position = 'fixed';
+            bigIcon.style.top = '50%';
+            bigIcon.style.left = '50%';
+            bigIcon.style.transform = 'translate(-50%, -50%) scale(0)';
+            bigIcon.style.fontSize = '100px';
+            bigIcon.style.zIndex = '10000';
+            bigIcon.style.pointerEvents = 'none';
+            bigIcon.style.filter = 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))';
+            
+            document.body.appendChild(bigIcon);
+            
+            bigIcon.animate([
+                { transform: 'translate(-50%, -50%) scale(0)', opacity: 0 },
+                { transform: 'translate(-50%, -50%) scale(1.5)', opacity: 1 },
+                { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                { transform: 'translate(-50%, -50%) scale(1)', opacity: 0 }
+            ], {
+                duration: 1500,
+                easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+            }).onfinish = () => {
+                bigIcon.remove();
+            };
+        }
+        
+        // 初始化
+        function init() {
+            currentIndex = getRandomFoodIndex();
+            const food = sweetFoods[currentIndex];
+            foodNameText.textContent = food;
+            selectedFoodElement.textContent = food;
+            
+            createCandyDecorations();
+        }
+        
+        // 事件监听
+        rollBtn.addEventListener('click', startRolling);
+        stopBtn.addEventListener('click', stopRolling);
+        
+        // 初始化
+        init();
+        
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                if (!isRolling) {
+                    startRolling();
+                } else {
+                    stopRolling();
+                }
+                e.preventDefault();
+            }
+        });
+        
+        // 按钮悬停效果
+        const candyButtons = document.querySelectorAll('.candy-button');
+        candyButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                if (!btn.disabled) {
+                    btn.style.transform = 'translateY(-8px) scale(1.08)';
+                }
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                if (!btn.disabled && !isRolling) {
+                    btn.style.transform = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
